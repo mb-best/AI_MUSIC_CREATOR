@@ -41,7 +41,8 @@ REVERB_MIX = 0.55
 LOUDNESS = 0.20                 # RMS target of the loudest 30% of the music
 CEILING = 0.93                  # peak ceiling (about -0.6 dBFS)
 
-cfg = json.load(open('mix.json'))
+with open('mix.json', encoding='utf-8') as f:
+    cfg = json.load(f)
 N = int(cfg['total'] * SR)
 rng = np.random.default_rng(3)
 

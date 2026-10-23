@@ -47,6 +47,7 @@ int main(int argc, char** argv) {
     tsf_channel_set_presetnumber(f, 9, 0, 1);
 
     FILE* in = fopen(argv[2], "r");
+    if (!in) { perror(argv[2]); tsf_close(f); return 1; }
     int cap = 1 << 16, n = 0; Ev* ev = malloc(sizeof(Ev) * cap);
     char ty;
     while (1) {
@@ -58,6 +59,7 @@ int main(int argc, char** argv) {
     double total = atof(argv[4]);
     long frames = (long)(total * SR);
     FILE* out = fopen(argv[3], "wb");
+    if (!out) { perror(argv[3]); free(ev); tsf_close(f); return 1; }
     const int BLK = 64; float buf[BLK * 2];
     int ei = 0;
     for (long pos = 0; pos < frames; pos += BLK) {
@@ -71,9 +73,15 @@ int main(int argc, char** argv) {
                 case 'C': tsf_channel_midi_control(f, e->ch, e->a, e->b); break;
             }
         }
-        tsf_render_float(f, buf, BLK, 0);
-        fwrite(buf, sizeof(float), BLK * 2, out);
+        int count = frames - pos < BLK ? (int)(frames - pos) : BLK;
+        tsf_render_float(f, buf, count, 0);
+        if (fwrite(buf, sizeof(float), count * 2, out) != (size_t)(count * 2)) {
+            perror(argv[3]); fclose(out); free(ev); tsf_close(f); return 1;
+        }
     }
-    fclose(out);
+    int failed = fclose(out) != 0;
+    free(ev);
+    tsf_close(f);
+    if (failed) { perror(argv[3]); return 1; }
     return 0;
 }

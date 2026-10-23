@@ -222,11 +222,13 @@ def export(end_beat):
             for e in ev:
                 if e[2] == ch:
                     f.write('%.5f %s %d %d %d\n' % e)
-    json.dump(dict(total=total, channels={str(k): v for k, v in CHANNELS.items()}), open('mix.json', 'w'), indent=1)
-    json.dump(dict(total=total, bars=[round(beat2sec(b), 4) for b in range(0, int(end_beat) + 1, 4)],
-                   beats=[round(beat2sec(b), 4) for b in range(int(end_beat) + 1)],
-                   notes=[dict(ch=n['ch'], p=n['pitch'], t0=n['t0'], t1=n['t1'], v=n['vel'], tag=n['tag']) for n in NOTES]),
-              open('notes.json', 'w'), separators=(',', ':'))
+    with open('mix.json', 'w', encoding='utf-8') as f:
+        json.dump(dict(total=total, channels={str(k): v for k, v in CHANNELS.items()}), f, indent=1)
+    with open('notes.json', 'w', encoding='utf-8') as f:
+        json.dump(dict(total=total, bars=[round(beat2sec(b), 4) for b in range(0, int(end_beat) + 1, 4)],
+                       beats=[round(beat2sec(b), 4) for b in range(int(end_beat) + 1)],
+                       notes=[dict(ch=n['ch'], p=n['pitch'], t0=n['t0'], t1=n['t1'], v=n['vel'], tag=n['tag']) for n in NOTES]),
+                  f, separators=(',', ':'))
     _midi(end_beat)
     print(SHORT_NOTICE)
     print(f'{len(NOTES)} notes, {len(CHANNELS)} channels, {total:.2f} s')
@@ -266,4 +268,4 @@ def _midi(end_beat, tpq=480):
                 ev.append((tk(n['b1']), bytes([0x80 | ch, n['pitch'], 0])))
         tracks.append(track(ev))
     with open('song.mid', 'wb') as f:
-        f.write(b'MThd' + struct.pack('>HHH', 1, len(tracks), tpq) + b''.join(tracks))
+        f.write(b'MThd' + struct.pack('>IHHH', 6, 1, len(tracks), tpq) + b''.join(tracks))

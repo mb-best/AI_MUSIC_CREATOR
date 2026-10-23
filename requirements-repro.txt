@@ -1,0 +1,5 @@
+# Verified with CPython 3.12.14 on Windows x64.
+# Original engine requirements remain in engine/requirements.txt.
+numpy==2.5.4
+scipy==1.18.1
+ziglang==0.16.0

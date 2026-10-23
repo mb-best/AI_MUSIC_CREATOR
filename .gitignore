@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+engine/build/
+engine/render
+engine/render.exe
+engine/*.obj
+engine/*.pdb
+engine/events_ch*.txt
+engine/mix.json
+engine/notes.json
+engine/song.mid
+engine/song.wav
+engine/stems/
+sound_library/GeneralUser-GS/GeneralUser-GS.sf2
+sound_library/GeneralUser-GS/*.tmp
